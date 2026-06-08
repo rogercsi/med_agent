@@ -1,0 +1,18 @@
+{
+  "naive": {
+    "mode": "naive",
+    "faithfulness": 0.612,
+    "answer_relevancy": 0.581,
+    "context_precision": 0.423,
+    "context_recall": 0.548,
+    "num_samples": 30
+  },
+  "optimized": {
+    "mode": "optimized",
+    "faithfulness": 0.887,
+    "answer_relevancy": 0.831,
+    "context_precision": 0.762,
+    "context_recall": 0.713,
+    "num_samples": 30
+  }
+}

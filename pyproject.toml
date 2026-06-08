@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "medical-agent"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    # LLM client (OpenAI SDK v2)
+    "openai==2.41.0",
+    # RAG stack (modular llama-index)
+    "llama-index-core==0.14.22",
+    "llama-index-vector-stores-qdrant==0.10.1",
+    "llama-index-embeddings-huggingface==0.7.0",
+    "rank-bm25==0.2.2",
+    "FlagEmbedding==1.4.0",
+    "qdrant-client==1.18.0",
+    "jieba==0.42.1",
+    # Memory
+    "mem0ai==2.0.4",
+    # Agent (LangGraph FSM)
+    "langgraph==1.2.4",
+    "langgraph-checkpoint-sqlite==3.1.0",
+    "langchain-core==1.4.1",
+    "langchain-openai==1.2.2",
+    # Evaluation
+    "ragas==0.4.3",
+    "datasets==4.8.5",
+    # API
+    "fastapi==0.136.3",
+    "uvicorn[standard]==0.34.2",
+    "sse-starlette==3.4.4",
+    # Config + utilities
+    "pydantic==2.11.5",
+    "pydantic-settings==2.14.1",
+    "python-dotenv==1.1.0",
+    "tenacity==9.1.2",
+    "rich==14.0.0",
+    "httpx==0.28.1",
+    "tiktoken==0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff==0.11.12",
+    "pytest==8.4.0",
+    "pytest-asyncio==0.26.0",
+    "pytest-mock==3.14.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/medical_agent"]
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

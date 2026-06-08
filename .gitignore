@@ -1,0 +1,14 @@
+.env
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+dist/
+.pytest_cache/
+.ruff_cache/
+data/bm25_index.pkl
+data/checkpoints.db
+*.db
+*.db-shm
+*.db-wal
+.DS_Store
