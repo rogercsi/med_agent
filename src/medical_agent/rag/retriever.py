@@ -67,7 +67,7 @@ class HybridRetriever:
         for rank, (cid, score) in enumerate(bm25_hits):
             merged[cid] = CandidateChunk(
                 chunk_id=cid,
-                text=self._bm25.corpus_texts[self._bm25.corpus_ids.index(cid)],
+                text=self._bm25.id_to_text.get(cid, ""),
                 source="",
                 bm25_rank=rank,
             )

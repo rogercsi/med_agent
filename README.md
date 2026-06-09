@@ -7,9 +7,9 @@ Portfolio demo project showcasing production-grade AI engineering skills:
 | **RAG** | Three-tier hybrid retrieval: BM25 + BGE-M3 dense + RRF fusion + BGE-Reranker cross-encoder |
 | **Context Engineering** | Query rewriting, LLM-based context compression, periodic conversation summarization |
 | **Long-term Memory** | Mem0 cross-session patient memory (symptoms, allergies, medications, preferences) |
-| **Agent FSM** | LangGraph StateGraph with 7 nodes, emergency detection, AsyncSqliteSaver checkpointing |
+| **Agent FSM** | LangGraph StateGraph with ToolNode + bind_tools ReAct loop, LLM-based emergency detection, AsyncSqliteSaver checkpointing |
 | **Evaluation** | Ragas pipeline: Faithfulness / AnswerRelevancy / ContextPrecision / ContextRecall |
-| **API** | FastAPI with SSE streaming + REST, CORS, lifespan model preloading |
+| **API** | FastAPI with real token-level SSE streaming, tool call events, structlog observability |
 
 ## Architecture
 
@@ -20,27 +20,25 @@ User Message
 inject_memory ──→ (Mem0: search patient history)
     │
     ▼
-intake ──→ (LLM: extract/refine symptom description)
+intake ──→ (AsyncOpenAI: extract/refine symptom description)
     │
     ▼
-safety_check ──→ rule-based + keyword matching
+safety_check ──→ keyword fast-path + ChatOpenAI.with_structured_output(_EmergencyCheck)
     │
-    ├─(emergency)──→ generate_response ──→ "请立即拨打120！"
-    │
-    └─(normal)────→ retrieve_context
-                        │
-                        ├─ BM25 coarse filter (top-50)
-                        ├─ BGE-M3 dense retrieval (top-20)
-                        ├─ RRF fusion
-                        ├─ BGE-Reranker cross-encoder (top-5)
-                        └─ LLM context compression (if tokens > 1500)
-                             │
-                             ▼
-                        generate_response ──→ save_memory
-                                                  │
-                                          (every 6 turns)
-                                                  ▼
-                                        summarize_conversation
+    ├─(emergency)──→ emergency_response ──→ "请立即拨打120！"
+    │                                           │
+    └─(normal)────→ agent ◄──────── tools ◄────┘ (ReAct loop via ToolNode)
+                    │  │                │
+                    │  └─ tool_calls?──┘   Tools:
+                    │                       · search_medical_knowledge
+                    │                       · check_drug_interaction
+                    │                         (each wraps 3-tier hybrid RAG)
+                    │
+                    └─(no tool_calls)──→ save_memory
+                                              │
+                                      (every 6 turns)
+                                              ▼
+                                    summarize_conversation
 ```
 
 ## Quick Start

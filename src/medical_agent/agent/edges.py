@@ -1,13 +1,22 @@
+from langchain_core.messages import AIMessage
+
 from medical_agent.config import get_settings
 
 
 def route_after_safety(state: dict) -> str:
     if state.get("is_emergency", False):
-        return "generate_response"  # emergency path skips RAG
-    return "retrieve_context"
+        return "emergency_response"
+    return "agent"
 
 
-def route_after_response(state: dict) -> str:
+def route_agent_or_tools(state: dict) -> str:
+    """After agent node: route to tools if there are pending tool calls, else finish."""
+    messages = state.get("messages", [])
+    if not messages:
+        return "save_memory"
+    last = messages[-1]
+    if isinstance(last, AIMessage) and getattr(last, "tool_calls", None):
+        return "tools"
     return "save_memory"
 
 

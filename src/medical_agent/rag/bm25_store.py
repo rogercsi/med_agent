@@ -14,6 +14,12 @@ class BM25Store:
     corpus_texts: list[str] = field(default_factory=list)
     _model: BM25Okapi | None = field(default=None, repr=False)
 
+    @property
+    def id_to_text(self) -> dict[str, str]:
+        if not hasattr(self, "_id_to_text") or len(self._id_to_text) != len(self.corpus_ids):
+            self._id_to_text: dict[str, str] = dict(zip(self.corpus_ids, self.corpus_texts, strict=True))
+        return self._id_to_text
+
     def add(self, chunk_id: str, text: str) -> None:
         self.corpus_ids.append(chunk_id)
         self.corpus_texts.append(text)
